@@ -1,5 +1,4 @@
 #include "I2Cdev.h"
-#include <ProTrinketMouse.h>
 #include "MPU6050_6Axis_MotionApps20.h"
 //#include "MPU6050.h" // not necessary if using MotionApps include file
 
@@ -9,6 +8,8 @@
     #include "Wire.h"
 #endif
 
+#include <SoftwareSerial.h>
+SoftwareSerial BT = SoftwareSerial(2, 0);
 // class default I2C address is 0x68
 // specific I2C addresses may be passed as a parameter here
 // AD0 low = 0x68 (default for SparkFun breakout and InvenSense evaluation board)
@@ -131,7 +132,7 @@ void setup() {
     }
 
     // configure LED for output
-    TrinketMouse.begin(); 
+    BT.begin(9600);
     pinMode(TOUCH_PIN, INPUT);
     pinMode(Interrupt_PIN, INPUT);
     tempGyroY[0]=0;
@@ -205,7 +206,6 @@ void loop() {
             tempGyroY[1]=ypr[2];
             tempGyroX[0]=tempGyroX[1];
             tempGyroX[1]=ypr[0];
-            TrinketMouse.move(0, 0, 0, 0 & 0x07);
             movementY=15*(tempGyroY[1]-tempGyroY[0])* 180/M_PI;
             movementX=15*(tempGyroX[1]-tempGyroX[0])* 180/M_PI;
             touched=digitalRead(TOUCH_PIN);
@@ -217,9 +217,22 @@ void loop() {
           //  Serial.print("\t");
           //  Serial.println(ypr[2] * 180/M_PI);
          
-              TrinketMouse.move(movementX, movementY, 0, 0 & 0x07);
+             mouseCommand(0,movementX,movementY);
             }
         
     }
+}
+
+
+void mouseCommand(uint8_t buttons, uint8_t x, uint8_t y) {
+  BT.write(0xFD);
+  BT.write((byte)0x00);
+  BT.write((byte)0x03);
+  BT.write(buttons);
+  BT.write(x);
+  BT.write(y);
+  BT.write((byte)0x00);
+  BT.write((byte)0x00);
+  BT.write((byte)0x00);
 }
 
