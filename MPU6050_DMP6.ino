@@ -1,3 +1,5 @@
+//Note that sampling rate is 20Hz, It can be set in the MPU6050_6Axis_MotionApps20.h
+
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 //#include "MPU6050.h" // not necessary if using MotionApps include file
@@ -53,6 +55,8 @@ float tempGyroY[2];
 float tempGyroX[2];
 int movementY;
 int movementX;
+int velocityZ;
+int velocityX;
 
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
@@ -197,11 +201,11 @@ void loop() {
         fifoCount -= packetSize;
   
             // display Euler angles in degrees
-            mpu.dmpGetQuaternion(&q, fifoBuffer);
-            mpu.dmpGetGravity(&gravity, &q);
+           // mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
             mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 
-
+            //setVelocity(aaReal.x,aaReal.z);
+            
             tempGyroY[0]=tempGyroY[1];
             tempGyroY[1]=ypr[2];
             tempGyroX[0]=tempGyroX[1];
@@ -235,4 +239,9 @@ void mouseCommand(uint8_t buttons, uint8_t x, uint8_t y) {
   BT.write((byte)0x00);
   BT.write((byte)0x00);
 }
+
+//void setVelocity(float accX, float accZ){
+ // velocityX=velocityX+accX;
+ // velocityZ=velocityX+accZ;
+ // }
 
